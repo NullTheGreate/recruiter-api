@@ -1,0 +1,29 @@
+[
+    {
+        "create": "users",
+        "validator": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "username": {
+                        "bsonType": "string",
+                        "description": "must be a string and is required"
+                    },
+                    "email": {
+                        "bsonType": "string",
+                        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                        "description": "must be a valid email address and is required"
+                    },
+                    "password": {
+                        "bsonType": "string",
+                        "description": "must be a string and is required"
+                    }
+                }
+            }
+        }
+    }
+]

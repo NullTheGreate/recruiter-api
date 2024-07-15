@@ -1,0 +1,32 @@
+definitions:
+  models.Applicants:
+    properties:
+      age:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/items/{id}:
+    get:
+      description: Get an item by ID
+      operationId: get-item-by-id
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Applicants'
+      summary: Get an item
+swagger: "2.0"

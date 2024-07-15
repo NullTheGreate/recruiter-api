@@ -1,0 +1,30 @@
+[
+    {
+        "create": "applicants",
+        "validator": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "name",
+                    "age"
+                ],
+                "properties": {
+                    "_id": {
+                        "bsonType": "objectId",
+                        "description": "must be an ObjectId and is automatically generated"
+                    },
+                    "name": {
+                        "bsonType": "string",
+                        "description": "must be a string and is required"
+                    },
+                    "age": {
+                        "bsonType": "int",
+                        "minimum": 0,
+                        "maximum": 120,
+                        "description": "must be an integer between 0 and 120 and is required"
+                    }
+                }
+            }
+        }
+    }
+]
