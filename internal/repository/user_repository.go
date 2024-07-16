@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	GetUsers() ([]models.Users, error)
 	GetUser(id primitive.ObjectID) (models.Users, error)
+	FindUserByUsername(string ) (models.Users, error)
 	CreateUser(user models.Users) (models.Users, error)
 	UpdateUser(id primitive.ObjectID, user models.Users) (models.Users, error)
 	DeleteUser(id primitive.ObjectID) error
@@ -61,4 +62,10 @@ func (r *MongoRepository) UpdateUser(id primitive.ObjectID, user models.Users) (
 func (r *MongoRepository) DeleteUser(id primitive.ObjectID) error {
 	_, err := r.db.Collection("users").DeleteOne(context.Background(), bson.M{"_id": id})
 	return err
+}
+
+func (r *MongoRepository) FindUserByUsername(username string) (models.Users, error) {
+	var user models.Users
+	err := r.db.Collection("users").FindOne(context.Background(), bson.M{"username": username}).Decode(&user)
+	return user, err
 }

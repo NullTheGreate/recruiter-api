@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"recruiter/internal/models"
 	"recruiter/internal/repository"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserHandler struct {
@@ -31,6 +33,9 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	user.Password = string(hashedPassword)
 	createUser, err := h.repo.CreateUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -38,4 +43,22 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createUser)
+}
+
+func (h *UserHandler) UserLogin(w http.ResponseWriter, r *http.Request) {
+	var loginUser models.Users
+	if err := json.NewDecoder(r.Body).Decode(&loginUser); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	user, err := h.repo.FindUserByUsername(loginUser.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password)); err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	json.NewEncoder(w).Encode(user)
 }
