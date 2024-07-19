@@ -53,15 +53,14 @@ func (h *UserHandler) UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	user, err := h.repo.FindUserByUsername(loginUser.Username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), hashedPassword); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password)); err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
