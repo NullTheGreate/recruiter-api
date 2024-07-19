@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"recruiter/internal/models"
 	"recruiter/internal/repository"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -56,9 +58,34 @@ func (h *UserHandler) UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginUser.Password)); err != nil {
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), hashedPassword); err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	json.NewEncoder(w).Encode(user)
+
+	expireTime := time.Now().Add(12 * time.Hour)
+	claims := &jwt.MapClaims{
+		"id":  user.ID,
+		"sub": user.Username,
+		"exp": expireTime.Unix(),
+		"iat": time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(user.Password))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(tokenString))
+
+	json.NewEncoder(w).Encode(LoginResponse{Token: tokenString})
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
 }
