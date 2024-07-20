@@ -54,7 +54,7 @@ func (h *UserHandler) UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.repo.FindUserByUsername(loginUser.Username)
+	user, err := h.repo.FindUserByEmail(loginUser.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -80,7 +80,7 @@ func (h *UserHandler) UserLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(tokenString))
+	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(LoginResponse{Token: tokenString})
 }
