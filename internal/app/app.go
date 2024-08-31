@@ -12,6 +12,7 @@ import (
 
 	"recruiter/internal/config"
 	"recruiter/internal/handlers"
+	"recruiter/internal/middleware"
 	"recruiter/internal/repository"
 	"recruiter/internal/routes"
 
@@ -60,6 +61,8 @@ func (a *App) initializeRoutes() {
 
 	routes.SetupApplicantRoutes(a.Router, handlers.NewApplicantHandler(repo))
 	routes.SetupUserRoutes(a.Router, handlers.NewUserHandler(repo))
+
+	a.Router.Use(middleware.AuthMiddleware)
 
 	a.Router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 }
